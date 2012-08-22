@@ -1,0 +1,147 @@
+/* target information */
+@import "version.inc";
+
+#define {
+    NewVersion : "${package-version++}";
+}
+
+#product-info  {
+	product-name: "php";
+	version: "5.4.0";
+//	original-source-location: "http://serf.googlecode.com/files/serf-1.1.0.zip";
+//	original-source-website: "http://code.google.com/p/serf/";
+//	license: "Apache";
+	packager: "Tim Rogers";
+}
+
+test {
+    set: COMP="${COMP??vc10}";
+    set: PLAT="${PLAT??x86, x64}";
+    default : false;
+    uses : {
+        release,
+    };
+    build-command: @"
+        for %%a in (${COMP}) do (
+            for %%b in (${PLAT}) do (
+            )
+        )
+	";
+};
+
+package {
+    set: COMP="${COMP??vc10}";
+    set: PLAT="${PLAT??x86, x64}";
+
+    default : false;
+    uses : {
+        update-version,
+        sign
+    };
+    
+    targets: {(COMP,PLAT) => @"copkg\php-dev[${0}]-${NewVersion}-${1}.msi",};
+    
+    build-command : @"
+        cd COPKG
+        autopackage php-dev-common.autopkg || goto failed
+        for %%a in (${COMP}) do (
+            for %%b in (${PLAT}) do (
+                autopackage --comp=%%a --plat=%%b  php.autopkg php-dev.autopkg || goto failed
+            )
+        )
+        ptk update-version
+    ";
+
+	clean-command: @"del COPKG\*.msi COPKG\*.wixpdb";
+	
+};
+
+
+update-version {
+    build-command : @"
+        REM auto-increment version.inc file...
+        if ""${noversion}"" == ""true"" goto :endver
+        pushd COPKG
+        setlocal EnableDelayedExpansion
+        set VERSTRING=#define { package-version: ${NewVersion}; }
+        echo !VERSTRING! > version.inc
+        popd
+        :endver
+    ";
+}
+
+
+release {
+    set: {
+        BuildCfg="Release";
+        COMP="${COMP??vc10}";
+		PLAT="${PLAT??x86, x64}";
+    };
+	build-command: @"
+        if ""${BUILT}"" equ ""true"" goto endrel
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                ptk --nologo base --COMP=%%A --PLAT=%%B --BuildCfg=${BuildCfg} || goto failed
+            )
+        )
+        :endrel
+	";
+};
+
+sign {
+    set: {
+        COMP="${COMP??vc10}";
+		PLAT="${PLAT??x86, x64}";
+    };
+    default : false;
+    uses : release;
+    build-command: @"
+        for %%A in (${COMP}) do (
+            for %%B in (${PLAT}) do (
+                simplesigner.exe --nologo --sign output\%%A\%%B\Release\**.dll output\%%A\%%B\Release\**.exe
+            )
+        )
+    ";
+};
+
+
+base {
+    set: {
+        BuildCfg="${BuildCfg??Debug}";
+        COMP="${COMP??vc10}";
+        PLAT="${PLAT??x86}";
+    };
+    compiler: "${COMP}";
+    platform: "${PLAT}";
+
+    requires: {
+        "apr-dev[${COMP}]-1.4.6-${PLAT}-1e373a58e25250cb",
+        "apr-util-dev[${COMP}]-1.4.2-${PLAT}-1e373a58e25250cb",
+        "openssl-dev[${COMP}]-1.0.0-${PLAT}-1e373a58e25250cb",
+        "zlib-dev[${COMP}]-1.2.5-${PLAT}-1e373a58e25250cb",
+    };
+
+    targets: { 
+	};
+	
+    build-command:@"
+        REM this makes it so that DLLs can have their own SxS Activation Context in an embedded resource.
+        echo %CL% | findstr ISOLATION_AWARE || set CL=%CL% /D ISOLATION_AWARE_ENABLED /U NOUSER 
+        
+		call buildconf.bat
+        REM configure --enable-debug-pack --enable-pgi --enable-zts --with-prefix=p:\php --enable-static-analyze --with-extra-includes=""%ProgramData%\include;%ProgramData%\include\libbz2;%ProgramData%\include\libiconv;%ProgramData%\include\zlib;"" --with-extra-libs=""%ProgramData%\lib\x64"" --with-bz2=shared --with-curl=shared --with-openssl=shared --with-libxml=shared --with-xml=shared --enable-xmlreader=shared --enable-xmlwriter=shared --enable-zlib=shared --with-iconv=shared --with-dom=shared --with-simplexml=shared --with-wddx=shared
+        call configure --enable-debug-pack --enable-pgi --enable-zts --with-prefix=p:\php --enable-static-analyze --with-extra-includes=""%ProgramData%\include;%ProgramData%\include\libbz2;%ProgramData%\include\libiconv;%ProgramData%\include\zlib;"" --with-extra-libs=""%ProgramData%\lib\x64"" --with-bz2=shared --with-curl=shared --with-openssl=shared --enable-zlib=shared
+        
+        nmake
+	";
+    
+    clean-command:@"
+       if exist output rmdir /s /q output > nul 2> nul
+	   if exist COPKG\Release rmdir /s /q COPKG\Release > nul 2> nul
+	   if exist COPKG\Release ipch /s /q COPKG\ipch > nul 2> nul
+	   pushd COPKG
+       del /S /Q /A - *.sdf *.suo *.user *.exe *.pdb  > nul 2>NUL
+	   popd
+    ";
+};
+
