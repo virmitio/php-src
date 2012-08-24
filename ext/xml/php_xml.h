@@ -20,6 +20,12 @@
 
 /* $Id$ */
 
+#ifdef PHP_WIN32
+#define XML__PHPAPI __declspec(dllexport)
+#else
+#define XML__PHPAPI PHPAPI
+#endif
+
 #ifndef PHP_XML_H
 #define PHP_XML_H
 
@@ -133,9 +139,9 @@ PHP_FUNCTION(utf8_encode);
 PHP_FUNCTION(utf8_decode);
 PHP_FUNCTION(xml_parse_into_struct);
 
-PHPAPI char *_xml_zval_strdup(zval *val);
-PHPAPI char *xml_utf8_decode(const XML_Char *, int, int *, const XML_Char *);
-PHPAPI char *xml_utf8_encode(const char *s, int len, int *newlen, const XML_Char *encoding);
+XML__PHPAPI char *_xml_zval_strdup(zval *val);
+XML__PHPAPI char *xml_utf8_decode(const XML_Char *, int, int *, const XML_Char *);
+XML__PHPAPI char *xml_utf8_encode(const char *s, int len, int *newlen, const XML_Char *encoding);
 
 #endif /* HAVE_LIBEXPAT */
 

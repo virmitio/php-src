@@ -42,6 +42,10 @@
 #include "ext/libxml/php_libxml.h"
 #endif
 
+#ifndef XML__PHPAPI
+#define XML__PHPAPI PHPAPI
+#endif
+
 /* Short-term TODO list:
  * - Implement XML_ExternalEntityParserCreate()
  * - XML_SetCommentHandler
@@ -606,8 +610,9 @@ static xml_encoding *xml_get_encoding(const XML_Char *name)
 }
 /* }}} */
 
+//#ifdef LIBXML_STATIC
 /* {{{ xml_utf8_encode */
-PHPAPI char *xml_utf8_encode(const char *s, int len, int *newlen, const XML_Char *encoding)
+XML__PHPAPI char *xml_utf8_encode(const char *s, int len, int *newlen, const XML_Char *encoding)
 {
 	int pos = len;
 	char *newbuf;
@@ -661,7 +666,7 @@ PHPAPI char *xml_utf8_encode(const char *s, int len, int *newlen, const XML_Char
 /* }}} */
 
 /* {{{ xml_utf8_decode */
-PHPAPI char *xml_utf8_decode(const XML_Char *s, int len, int *newlen, const XML_Char *encoding)
+XML__PHPAPI char *xml_utf8_decode(const XML_Char *s, int len, int *newlen, const XML_Char *encoding)
 {
 	size_t pos = 0;
 	char *newbuf = emalloc(len + 1);
@@ -701,6 +706,7 @@ PHPAPI char *xml_utf8_decode(const XML_Char *s, int len, int *newlen, const XML_
 	return newbuf;
 }
 /* }}} */
+//#endif /* LIBXML_STATIC */
 
 /* {{{ _xml_xmlcharlen() */
 static int _xml_xmlcharlen(const XML_Char *s)
@@ -715,8 +721,9 @@ static int _xml_xmlcharlen(const XML_Char *s)
 }
 /* }}} */
 
+//#ifdef LIBXML_STATIC
 /* {{{ _xml_zval_strdup() */
-PHPAPI char *_xml_zval_strdup(zval *val)
+XML__PHPAPI char *_xml_zval_strdup(zval *val)
 {
 	if (Z_TYPE_P(val) == IS_STRING) {
 		char *buf = emalloc(Z_STRLEN_P(val) + 1);
@@ -727,6 +734,7 @@ PHPAPI char *_xml_zval_strdup(zval *val)
 	return NULL;
 }
 /* }}} */
+//#endif /* LIBXML_STATIC */
 
 /* {{{ _xml_add_to_info */
 static void _xml_add_to_info(xml_parser *parser,char *name)

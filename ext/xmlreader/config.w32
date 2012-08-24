@@ -4,11 +4,15 @@
 ARG_ENABLE("xmlreader", "XMLReader support", "yes");
 
 if (PHP_XMLREADER == "yes" && PHP_LIBXML == "yes") {
+	if (PHP_LIBXML_SHARED && CHECK_LIB("libxml2.lib", "xmlreader", PHP_XMLREADER_SHARED)) {}
 	EXTENSION("xmlreader", "php_xmlreader.c");
 	AC_DEFINE("HAVE_XMLREADER", 1, "XMLReader support");
 	if (!PHP_XMLREADER_SHARED) {
 		ADD_FLAG("CFLAGS_XMLREADER", "/D LIBXML_STATIC");
 	}
 	ADD_EXTENSION_DEP('xmlreader', 'libxml');
+	if (PHP_DOM == "yes") {
+		ADD_EXTENSION_DEP('xmlreader', 'dom');
+	}
 }
 

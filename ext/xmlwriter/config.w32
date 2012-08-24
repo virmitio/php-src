@@ -4,6 +4,7 @@
 ARG_ENABLE("xmlwriter", "XMLWriter support", "yes");
 
 if (PHP_XMLWRITER == "yes" && PHP_LIBXML == "yes") {
+	if (PHP_LIBXML_SHARED && CHECK_LIB("libxml2.lib", "xmlwriter", PHP_XMLWRITER_SHARED)) {}
 	if (CHECK_HEADER_ADD_INCLUDE('libxml/xmlwriter.h', 'CFLAGS_XMLWRITER', PHP_XMLWRITER)) {
 		EXTENSION("xmlwriter", "php_xmlwriter.c");
 		AC_DEFINE("HAVE_XMLWRITER", 1, "XMLWriter support");

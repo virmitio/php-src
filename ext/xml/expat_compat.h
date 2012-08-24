@@ -38,6 +38,12 @@
 #include <libxml/tree.h>
 #include <libxml/hash.h>
 
+#ifdef PHP_WIN32
+#define XML__PHPAPI __declspec(dllexport)
+#else
+#define XML__PHPAPI PHPAPI
+#endif
+
 typedef xmlChar XML_Char;
 
 typedef void (*XML_StartElementHandler)(void *, const XML_Char *, const XML_Char **);
@@ -118,29 +124,29 @@ enum XML_Content_Type {
 	XML_CTYPE_SEQ
 };
 
-PHPAPI XML_Parser XML_ParserCreate(const XML_Char *);
-PHPAPI XML_Parser XML_ParserCreateNS(const XML_Char *, const XML_Char);
-PHPAPI XML_Parser XML_ParserCreate_MM(const XML_Char *, const XML_Memory_Handling_Suite *, const XML_Char *);
-PHPAPI void XML_SetUserData(XML_Parser, void *);
-PHPAPI void *XML_GetUserData(XML_Parser);
-PHPAPI void XML_SetElementHandler(XML_Parser, XML_StartElementHandler, XML_EndElementHandler);
-PHPAPI void XML_SetCharacterDataHandler(XML_Parser, XML_CharacterDataHandler);
-PHPAPI void XML_SetProcessingInstructionHandler(XML_Parser, XML_ProcessingInstructionHandler);
-PHPAPI void XML_SetDefaultHandler(XML_Parser, XML_DefaultHandler);
-PHPAPI void XML_SetUnparsedEntityDeclHandler(XML_Parser, XML_UnparsedEntityDeclHandler);
-PHPAPI void XML_SetNotationDeclHandler(XML_Parser, XML_NotationDeclHandler);
-PHPAPI void XML_SetExternalEntityRefHandler(XML_Parser, XML_ExternalEntityRefHandler);
-PHPAPI void XML_SetStartNamespaceDeclHandler(XML_Parser, XML_StartNamespaceDeclHandler);
-PHPAPI void XML_SetEndNamespaceDeclHandler(XML_Parser, XML_EndNamespaceDeclHandler);
-PHPAPI int  XML_Parse(XML_Parser, const XML_Char *, int data_len, int is_final);
-PHPAPI int  XML_GetErrorCode(XML_Parser);
-PHPAPI const XML_Char *XML_ErrorString(int);
-PHPAPI int  XML_GetCurrentLineNumber(XML_Parser);
-PHPAPI int  XML_GetCurrentColumnNumber(XML_Parser);
-PHPAPI int  XML_GetCurrentByteIndex(XML_Parser);
-PHPAPI int  XML_GetCurrentByteCount(XML_Parser);
-PHPAPI const XML_Char *XML_ExpatVersion(void);
-PHPAPI void XML_ParserFree(XML_Parser);
+XML__PHPAPI XML_Parser XML_ParserCreate(const XML_Char *);
+XML__PHPAPI XML_Parser XML_ParserCreateNS(const XML_Char *, const XML_Char);
+XML__PHPAPI XML_Parser XML_ParserCreate_MM(const XML_Char *, const XML_Memory_Handling_Suite *, const XML_Char *);
+XML__PHPAPI void XML_SetUserData(XML_Parser, void *);
+XML__PHPAPI void *XML_GetUserData(XML_Parser);
+XML__PHPAPI void XML_SetElementHandler(XML_Parser, XML_StartElementHandler, XML_EndElementHandler);
+XML__PHPAPI void XML_SetCharacterDataHandler(XML_Parser, XML_CharacterDataHandler);
+XML__PHPAPI void XML_SetProcessingInstructionHandler(XML_Parser, XML_ProcessingInstructionHandler);
+XML__PHPAPI void XML_SetDefaultHandler(XML_Parser, XML_DefaultHandler);
+XML__PHPAPI void XML_SetUnparsedEntityDeclHandler(XML_Parser, XML_UnparsedEntityDeclHandler);
+XML__PHPAPI void XML_SetNotationDeclHandler(XML_Parser, XML_NotationDeclHandler);
+XML__PHPAPI void XML_SetExternalEntityRefHandler(XML_Parser, XML_ExternalEntityRefHandler);
+XML__PHPAPI void XML_SetStartNamespaceDeclHandler(XML_Parser, XML_StartNamespaceDeclHandler);
+XML__PHPAPI void XML_SetEndNamespaceDeclHandler(XML_Parser, XML_EndNamespaceDeclHandler);
+XML__PHPAPI int  XML_Parse(XML_Parser, const XML_Char *, int data_len, int is_final);
+XML__PHPAPI int  XML_GetErrorCode(XML_Parser);
+XML__PHPAPI const XML_Char *XML_ErrorString(int);
+XML__PHPAPI int  XML_GetCurrentLineNumber(XML_Parser);
+XML__PHPAPI int  XML_GetCurrentColumnNumber(XML_Parser);
+XML__PHPAPI int  XML_GetCurrentByteIndex(XML_Parser);
+XML__PHPAPI int  XML_GetCurrentByteCount(XML_Parser);
+XML__PHPAPI const XML_Char *XML_ExpatVersion(void);
+XML__PHPAPI void XML_ParserFree(XML_Parser);
 
 #elif defined(HAVE_LIBEXPAT)
 #include <expat.h>
